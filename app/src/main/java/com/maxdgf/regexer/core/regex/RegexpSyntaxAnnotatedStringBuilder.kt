@@ -43,6 +43,7 @@ class RegexpSyntaxAnnotatedStringBuilder {
                 if (!isLiteralFlagEnabled) {
                     var lastIndex = 0 // last index of last match
 
+                    val materialLength = material.length // input text length
                     val matchesList = mutableListOf<MatchResult>() // all matches list
 
                     syntaxCollection.forEach { syntax ->
@@ -81,9 +82,12 @@ class RegexpSyntaxAnnotatedStringBuilder {
                         lastIndex += partLength // updating last index of last match
                     }
 
-                    val otherText = material.substring(lastIndex) // remaining text after the last match
+                    // last match index check
+                    if (lastIndex < materialLength) {
+                        val otherText = material.substring(lastIndex) // remaining text after the last match
 
-                    resultAnnotatedString.append(otherText) // adding remaining text after the last match
+                        resultAnnotatedString.append(otherText) // adding remaining text after the last match
+                    }
                 } else {
                     resultAnnotatedString.append(material) // adding text without style
                 }

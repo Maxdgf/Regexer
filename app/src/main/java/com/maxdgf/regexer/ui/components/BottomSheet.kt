@@ -1,5 +1,7 @@
 package com.maxdgf.regexer.ui.components
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -11,10 +13,10 @@ import androidx.compose.ui.Modifier
 @Composable
 fun BottomUiSheet(
     state: Boolean,
-    modifier: Modifier = Modifier,
     skipPartiallyExpanded: Boolean,
     gesturesEnabled: Boolean = true,
     onDismissRequestFunction: () -> Unit,
+    titleContent: @Composable () -> Unit = {},
     uiContent: @Composable () -> Unit
 ) {
     if (state) {
@@ -23,10 +25,14 @@ fun BottomUiSheet(
         )
 
         ModalBottomSheet(
-            modifier = modifier,
             sheetState = sheetState,
             sheetGesturesEnabled = gesturesEnabled,
             onDismissRequest = { onDismissRequestFunction() }
-        ) { uiContent() }
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                titleContent()
+                uiContent()
+            }
+        }
     }
 }

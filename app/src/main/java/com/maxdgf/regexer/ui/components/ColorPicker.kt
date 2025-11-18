@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,13 +43,21 @@ fun ColorPickerSheet(
     visibilityState: Boolean,
     initialColor: Color,
     configuration: Configuration,
+    title: String,
     onDismissRequestFunction: () -> Unit,
     onColorChangedFunction: (color: Color) -> Unit
 ) {
     BottomUiSheet(
         state = visibilityState,
         skipPartiallyExpanded = true,
-        onDismissRequestFunction = { onDismissRequestFunction() }
+        onDismissRequestFunction = { onDismissRequestFunction() },
+        titleContent = {
+            RegexerUiDialogTitle(
+                titleText = title,
+                modifier = Modifier.padding(horizontal = 20.dp),
+                spawnDismissDialogButton = false
+            )
+        }
     ) {
         val controller = rememberColorPickerController() // color picker controller
 
@@ -60,33 +69,6 @@ fun ColorPickerSheet(
                     .padding(30.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        bitmap = ImageBitmap.imageResource(R.drawable.regexer_logo_mini),
-                        contentDescription = null,
-                        modifier = Modifier.size(25.dp),
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSecondary)
-                    )
-
-                    Text(
-                        text = "Select match color",
-                        modifier = Modifier.weight(1f),
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-
-                    IconButton(onClick = { onDismissRequestFunction() }) {
-                        Icon(
-                            painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
-                            contentDescription = null
-                        )
-                    }
-                }
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
@@ -132,33 +114,6 @@ fun ColorPickerSheet(
                     .fillMaxSize()
                     .padding(30.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        bitmap = ImageBitmap.imageResource(R.drawable.regexer_logo_mini),
-                        contentDescription = null,
-                        modifier = Modifier.size(25.dp),
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSecondary)
-                    )
-
-                    Text(
-                        text = "Select match color",
-                        modifier = Modifier.weight(1f),
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-
-                    IconButton(onClick = { onDismissRequestFunction() }) {
-                        Icon(
-                            painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
-                            contentDescription = null
-                        )
-                    }
-                }
-
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Column(
                         modifier = Modifier.weight(1f),

@@ -46,10 +46,6 @@ class UiState : ViewModel() {
     var colorPickerState by mutableStateOf(false)
     var aboutAppInfoSheetState by mutableStateOf(false)
     var isTestTextFieldFocusedState by mutableStateOf(false)
-
-    var allSymbolsCount by mutableIntStateOf(0)
-    var allWordsCount by mutableIntStateOf(0)
-    var allStringsCount by mutableIntStateOf(0)
     //============================================================== other (states)
 
     //=============================================================== regexp settings and parameters management (state functions)
@@ -92,19 +88,5 @@ class UiState : ViewModel() {
     fun updateColorPickerState(state: Boolean) { colorPickerState = state }
     fun updateAboutAppInfoSheetState(state: Boolean) { aboutAppInfoSheetState = state }
     fun updateIsTestTextFieldFocusedState(state: Boolean) { isTestTextFieldFocusedState = state }
-
-    fun calculateAllSymbolsCount() { allSymbolsCount = textInputFieldState.length }
-    fun calculateAllWordsCount() {
-        val pattern = Regex("\\w+") //words
-        val words = pattern.findAll(textInputFieldState)
-
-        allWordsCount = words.count()
-    }
-    fun calculateAllStringsCount() {
-        val pattern = Regex("\n") //strings(lines)
-        val words = pattern.findAll(textInputFieldState)
-
-        allStringsCount = words.count()
-    }
     //============================================================== other (state functions)
 }

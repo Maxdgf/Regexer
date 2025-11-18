@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -47,6 +48,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -88,6 +90,7 @@ import com.maxdgf.regexer.dataStore
 import com.maxdgf.regexer.ui.components.AlertUiDialog
 import com.maxdgf.regexer.ui.components.BottomUiSheet
 import com.maxdgf.regexer.ui.components.ColorPickerSheet
+import com.maxdgf.regexer.ui.components.RegexerUiDialogTitle
 import com.maxdgf.regexer.ui.data_management.view_models.UiState
 import com.maxdgf.regexer.ui.utils.CurrentThemeColor
 import com.maxdgf.regexer.ui.utils.RegexFieldVisualTransformation
@@ -146,16 +149,6 @@ fun MainAppScreen(uiState: UiState = viewModel()) {
         delay(10) //delay
     }
     //================================================================================= asynchronous setting the color in the datastore parameter when the state of the match highlight color changes
-
-    //================================================================================= asynchronous calculation of test text characteristics
-    LaunchedEffect(uiState.textInputFieldState) {
-        uiState.calculateAllSymbolsCount() // calculate all symbols count in test text
-        uiState.calculateAllWordsCount() // calculate all words count in test text
-        uiState.calculateAllStringsCount() // calculate all strings count in test text
-
-        delay(10) // update delay
-    }
-    //================================================================================= asynchronous calculation of test text characteristics
 
     Scaffold(
         topBar = { // top app bar
@@ -578,80 +571,75 @@ fun MainAppScreen(uiState: UiState = viewModel()) {
                         .padding(5.dp)
                         .fillMaxWidth()
                 ) {
+                    // test text field tool buttons row panel
                     Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                        // text data view
-                        Row(
-                            modifier = Modifier
-                                .weight(1f)
-                                .align(Alignment.CenterVertically),
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                        // clear all text from text field button
+                        Button( // clear content in test text field button
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress) //haptic
+
+                                if (uiState.textInputFieldState.isNotEmpty()) {
+                                    uiState.updateTextInputFieldState("") // clear all text from text field state
+                                    toaster.showToast("test text cleared!")
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(5.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onSecondary
+                            )
                         ) {
-                            Text(
-                                text = "\uD83D\uDD21: ${uiState.allSymbolsCount}", // all symbols count
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = "\uD83D\uDD24: ${uiState.allWordsCount}", // all words count
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = "↪\uFE0F: ${uiState.allStringsCount}", // all strings count
-                                modifier = Modifier.weight(1f)
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_clear_24),
+                                contentDescription = null
                             )
                         }
 
-                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            // clear all text from text field icon button
-                            IconButton(
-                                onClick = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress) //haptic
+                        // paste text from clipboard button
+                        Button( // paste text in test text field button
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress) //haptic
+                                val clipData = clipBoardManager.getClipboardText() // get data from clipboard
 
-                                    if (uiState.textInputFieldState.isNotEmpty()) {
-                                        uiState.updateTextInputFieldState("") // clear all text from text field state
-                                        toaster.showToast("test text cleared!")
-                                    }
+                                if (clipData.isNotEmpty()) {
+                                    uiState.updateTextInputFieldState(clipData) // set data to text field state
+                                    toaster.showToast("text pasted!")
                                 }
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(5.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onSecondary
+                            )
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_content_paste_24),
+                                contentDescription = null
+                            )
+                        }
+
+                        // colorpicker view button
+                        Button(
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress) //haptic
+                                uiState.updateColorPickerState(true)
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(5.dp),
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        uiState.regexSelectionMatchesColor ?: Color.Transparent
+                                    ), // background - current matches count
+                                contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.baseline_clear_24),
+                                    painter = painterResource(R.drawable.outline_draw_24),
                                     contentDescription = null
                                 )
-                            }
-
-                            // paste text from clipboard icon button
-                            IconButton(
-                                onClick = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress) //haptic
-                                    val clipData =
-                                        clipBoardManager.getClipboardText() // get data from clipboard
-
-                                    if (clipData.isNotEmpty()) {
-                                        uiState.updateTextInputFieldState(clipData) // set data to text field state
-                                        toaster.showToast("text pasted!")
-                                    }
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.baseline_content_paste_24),
-                                    contentDescription = null
-                                )
-                            }
-
-                            // colorpicker view icon button
-                            IconButton(onClick = { uiState.updateColorPickerState(true) }) {
-                                Box(
-                                    modifier = Modifier
-                                        .background(
-                                            uiState.regexSelectionMatchesColor ?: Color.Transparent
-                                        ) // background - current matches count
-                                        .fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.outline_draw_24),
-                                        contentDescription = null
-                                    )
-                                }
                             }
                         }
                     }
@@ -662,7 +650,7 @@ fun MainAppScreen(uiState: UiState = viewModel()) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(10.dp)
-                    .onFocusChanged{ uiState.updateIsTestTextFieldFocusedState(it.isFocused) },
+                    .onFocusChanged{ uiState.updateIsTestTextFieldFocusedState(it.isFocused) }, // updating isFocused state
                 value = uiState.textInputFieldState,
                 onValueChange = { newValue -> uiState.updateTextInputFieldState(newValue) },
                 placeholder = {
@@ -691,39 +679,17 @@ fun MainAppScreen(uiState: UiState = viewModel()) {
             state = uiState.bottomCheatSheetState,
             skipPartiallyExpanded = true,
             onDismissRequestFunction = { uiState.updateBottomCheatSheetState(false) },
-            modifier = Modifier.fillMaxHeight(),
-            gesturesEnabled = false
+            gesturesEnabled = false,
+            titleContent = {
+                RegexerUiDialogTitle(
+                    titleText = "Regexp mini-cheat sheet",
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    spawnDismissDialogButton = true,
+                    spawnDismissDialogButtonFunction = { uiState.updateBottomCheatSheetState(false) }
+                )
+            }
         ) {
             Column(modifier = Modifier.padding(10.dp)) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        bitmap = ImageBitmap.imageResource(R.drawable.regexer_logo_mini),
-                        contentDescription = null,
-                        modifier = Modifier.size(25.dp),
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSecondary)
-                    )
-
-                    Text(
-                        text = "Regex mini-cheat sheet",
-                        modifier = Modifier.weight(1f),
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-
-                    IconButton(onClick = { uiState.updateBottomCheatSheetState(false) }) {
-                        Icon(
-                            painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
-                            contentDescription = null
-                        )
-                    }
-                }
-
                 val verticalScroll = rememberScrollState()
 
                 Text(
@@ -746,43 +712,21 @@ fun MainAppScreen(uiState: UiState = viewModel()) {
     BottomUiSheet(
         state = uiState.aboutAppInfoSheetState,
         skipPartiallyExpanded = true,
-        onDismissRequestFunction = { uiState.updateBottomCheatSheetState(false) },
-        modifier = Modifier.fillMaxHeight(),
-        gesturesEnabled = false
+        onDismissRequestFunction = { uiState.updateAboutAppInfoSheetState(false) },
+        gesturesEnabled = false,
+        titleContent = {
+            RegexerUiDialogTitle( // title component
+                titleText = "About ${stringResource(R.string.app_name)} App",
+                modifier = Modifier.padding(horizontal = 20.dp),
+                spawnDismissDialogButton = true,
+                spawnDismissDialogButtonFunction = { uiState.updateAboutAppInfoSheetState(false) }
+            )
+        }
     ) {
         Column(
             modifier = Modifier.padding(10.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    bitmap = ImageBitmap.imageResource(R.drawable.regexer_logo_mini),
-                    contentDescription = null,
-                    modifier = Modifier.size(25.dp),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSecondary)
-                )
-
-                Text(
-                    text = "About ${stringResource(R.string.app_name)} App",
-                    modifier = Modifier.weight(1f),
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-
-                IconButton(onClick = { uiState.updateAboutAppInfoSheetState(false) }) {
-                    Icon(
-                        painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
-                        contentDescription = null
-                    )
-                }
-            }
-
             // project info
             Text(
                 text = REGEXER_APP_INFO,
@@ -814,10 +758,9 @@ fun MainAppScreen(uiState: UiState = viewModel()) {
 
             Spacer(modifier = Modifier.weight(1f))
 
+            // app version name
             Text(
-                text = appManager.getAppVersionName()?.let {
-                    "version: $it"
-                } ?: "",
+                text = appManager.getAppVersionName()?.let { "version: $it" } ?: "",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Light,
                 fontStyle = FontStyle.Italic,
@@ -834,7 +777,8 @@ fun MainAppScreen(uiState: UiState = viewModel()) {
         onDismissRequestFunction = { uiState.updateColorPickerState(false) },
         onColorChangedFunction = uiState::updateRegexSelectionMatchesColorState,
         initialColor = uiState.regexSelectionMatchesColor ?: defaultSelectionColor,
-        configuration = configuration
+        configuration = configuration,
+        title = "Select regexp match color"
     )
     //============================================================================== Color picker sheet
 }
