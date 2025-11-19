@@ -1,5 +1,6 @@
 package com.maxdgf.regexer
 
+const val FILES_TYPE = "text/*"
 const val REGEXER_APP_GITHUB_REPO_LINK = "https://github.com/Maxdgf/Regexer"
 const val REGEX_CHEAT_SHEET_TEXT = "Character classes:\n" +
         ".\tany character except newline\n" +

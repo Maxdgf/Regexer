@@ -1,6 +1,9 @@
 package com.maxdgf.regexer.ui.screens
 
+import android.content.Intent
 import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -48,10 +51,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.fromColorLong
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -72,6 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.maxdgf.regexer.FILES_TYPE
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 
@@ -83,6 +85,7 @@ import com.maxdgf.regexer.REGEX_CHEAT_SHEET_TEXT
 import com.maxdgf.regexer.core.regex.RegexpSyntaxAnnotatedStringBuilder
 import com.maxdgf.regexer.core.system_utils.AppManager
 import com.maxdgf.regexer.core.system_utils.ClipBoardManager
+import com.maxdgf.regexer.core.system_utils.FileManager
 import com.maxdgf.regexer.core.system_utils.Toaster
 import com.maxdgf.regexer.core.system_utils.UrlOpener
 import com.maxdgf.regexer.currentSelectionMatchesColor
@@ -115,7 +118,21 @@ fun MainAppScreen(uiState: UiState = viewModel()) {
     val regexpSyntaxAnnotatedStringBuilder = remember { RegexpSyntaxAnnotatedStringBuilder() }
     val urlOpener = remember { UrlOpener(context) }
     val toaster = remember { Toaster(context) }
+    val fileManager = remember { FileManager(context) }
     //========================================================================================= classes init
+
+    //========================================================================================= activity result launchers
+    val pickTextFileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val fileUri = result.data?.data
+
+        fileUri?.let { uri ->
+            val openedFileContent = fileManager.openTextFile(uri) // open and read text file
+
+            uiState.updateTextInputFieldState(openedFileContent)
+            toaster.showToast("Text file opened!")
+        }
+    }
+    //========================================================================================= activity result launchers
 
     //========================================================================================= viewmodel state value observers
     val regexFlagsList by uiState.regexFlagsList.collectAsState()
@@ -133,7 +150,7 @@ fun MainAppScreen(uiState: UiState = viewModel()) {
             colorLong?.let {
                 val color = Color.fromColorLong(it)
                 uiState.updateRegexSelectionMatchesColorState(color)
-            } ?: uiState.updateRegexSelectionMatchesColorState(defaultSelectionColor)
+            } ?: uiState.updateRegexSelectionMatchesColorState(defaultSelectionColor) // setting default color
         }
     }
     //================================================================================= asynchronous retrieve the current match highlight color from the datastore and set it to the viewmodel state variable
@@ -638,6 +655,24 @@ fun MainAppScreen(uiState: UiState = viewModel()) {
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.outline_draw_24),
+                                    contentDescription = null
+                                )
+                            }
+                        }
+
+                        Button(
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress) //haptic
+
+                                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply { type = FILES_TYPE }
+                                pickTextFileLauncher.launch(intent) // launching open text file intent
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(5.dp),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    painter = painterResource(R.drawable.outline_file_open_24),
                                     contentDescription = null
                                 )
                             }

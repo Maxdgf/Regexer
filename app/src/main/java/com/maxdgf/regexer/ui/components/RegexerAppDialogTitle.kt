@@ -1,6 +1,7 @@
 package com.maxdgf.regexer.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -40,7 +41,9 @@ fun RegexerUiDialogTitle(
 
         Text(
             text = titleText,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .basicMarquee(Int.MAX_VALUE),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
