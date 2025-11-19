@@ -11,4 +11,3 @@
 ## Todo✅
  1. UI improvement
  2. implementation of logic for saving regular expression patterns by user
- 3. implementation of logic for loading text files from a device as test data for testing regular expression patterns
