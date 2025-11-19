@@ -3,13 +3,6 @@
 # Regexer
  A simple and easy-to-use Android app built in *Jetpack Compose* and based on Kotlin *Regex* library for testing regular expressions.📃
 
-## Gallery
- Screenshots in light and dark themes.
-
- | Light | Dark |
- | :-----------: | :--------------: |
- | <img src="previews/regexer_screen2.jpg" width="300" height="600"> | <img src="previews/regexer_screen1.jpg" width="300" height="600"> |
-
 ## Used libs:
  * androidx datastore
  * viewmodel
