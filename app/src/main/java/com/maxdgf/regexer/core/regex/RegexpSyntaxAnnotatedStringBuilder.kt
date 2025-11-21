@@ -15,7 +15,7 @@ class RegexpSyntaxAnnotatedStringBuilder {
     */
     private val syntaxCollection = setOf(
         Regex("(?<!\\\\)[\\^$]") to Color(0xFF962501), // end, start (^$)
-        Regex("\\\\[wW]|\\\\[dD]|\\\\[sS]") to Color(0xFFFF5722), // \w \W \d \D \s \S
+        Regex("\\\\w|\\\\d|\\\\s", RegexOption.IGNORE_CASE) to Color(0xFFFF5722), // \w \W \d \D \s \S
         Regex("(?<!\\\\)[()]") to Color(0xFF4CAF50), // ()
         Regex("(?<!\\\\)[\\[\\].]") to Color(0xFFFFC107), // [].
         Regex("(?<!\\\\)[{}?!*+]") to Color(0xFF2196F3), // {} ?!*+
